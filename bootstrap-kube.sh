@@ -2,6 +2,9 @@
 
 # This script has been tested on Ubuntu 20.04
 # For other versions of Ubuntu, you might need some tweaking
+# systemctl start snap.lxd.daemon
+# 对于非 cgroupv2 系统（例如默认 CentOS8 和默认 Oracle Linux 8），配置文件中的上述行足以处理 /dev/kmsg：
+# lxc config device add "ContainerName" "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"
 
 echo "[TASK 0] Install essential packages"
 echo 'L /dev/kmsg - - - - /dev/console' > /etc/tmpfiles.d/kmsg.conf
@@ -17,9 +20,9 @@ containerd config default > /etc/containerd/config.toml
 mkdir -p /etc/systemd/system/containerd.service.d
 cat >>/etc/systemd/system/containerd.service.d/http-proxy.conf<<EOF
 [Service]
-Environment="HTTP_PROXY=http://10.31.151.1:15777"
-Environment="HTTPS_PROXY=http://10.31.151.1:15777"
-Environment="NO_PROXY=localhost,10.244.0.0/16,127.0.0.1,192.168.0.0/16"
+Environment="HTTP_PROXY=http://10.3.2.1:15777"
+Environment="HTTPS_PROXY=http://10.3.2.1:15777"
+Environment="NO_PROXY=localhost,10.244.0.0/16,127.0.0.1,192.168.0.0/16,10.3.0.0/16"
 EOF
 systemctl daemon-reload
 systemctl restart containerd
@@ -57,8 +60,6 @@ then
   kubeadm config images pull >/dev/null 2>&1
 
   echo "[TASK 8] Initialize Kubernetes Cluster"
-  unset http_proxy
-  unset https_proxy
   kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=all >> /root/kubeinit.log 2>&1
 
   echo "[TASK 9] Copy kube admin config to root user .kube directory"
