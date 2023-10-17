@@ -4,6 +4,7 @@
 # For other versions of Ubuntu, you might need some tweaking
 
 echo "[TASK 0] Install essential packages"
+echo 'L /dev/kmsg - - - - /dev/console' > /etc/tmpfiles.d/kmsg.conf
 export http_proxy=http://10.31.151.1:15777 https_proxy=http://10.31.151.1:15777
 export no_proxy=localhost,10.244.0.0/16,127.0.0.1,192.168.0.0/16
 apt install -qq -y net-tools curl ssh software-properties-common >/dev/null 2>&1
